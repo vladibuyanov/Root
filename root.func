@@ -1,0 +1,34 @@
+;; Структура для хранения данных о балансах пользователей
+mapping(address => uint128) balances;
+
+;; Общее количество токенов в обращении
+var totalSupply: uint128;
+
+;; Адрес владельца контракта
+var owner: address;
+
+;; Конструктор контракта
+function constructor() {
+    totalSupply = 1_000_000; // Начальное количество токенов
+    owner = msg.sender;      // Владелец контракта
+    balances[owner] = totalSupply; // Все токены достаются владельцу
+}
+
+;; Функция для просмотра баланса
+function balanceOf(address addr) returns (uint128) {
+    return balances[addr];
+}
+
+;; Функция для перевода токенов
+function transfer(address to, uint128 value) {
+    if (balances[msg.sender] >= value) { // Проверяем, достаточно ли токенов
+        balances[msg.sender] -= value;   // Уменьшаем баланс отправителя
+        balances[to] += value;           // Увеличиваем баланс получателя
+        emit Transfer(msg.sender, to, value); // Логируем событие
+    } else {
+        throw "Недостаточно токенов";
+    }
+}
+
+;; Событие о переводе токенов
+event Transfer(address from, address to, uint128 value);
